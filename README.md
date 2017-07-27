@@ -1,22 +1,18 @@
 # CarTracker
 
-This is a bundle of scripts that cause a Raspberry Pi + GPS data logger combo in my car to log to a sensible location. This is very very alpha, I'm just tinkering for now.
+This system grew out of my need to keep a car logbook for tax purposes. I need to record every car journey's distance and purpose.
 
-## Hardware
+## Components
 
-* Raspberry Pi 3
-* Holux M-1000C GPS Data Logger
+* Raspberry Pi
+* USB LTE Modem
+* gpsd compatible GPS Data Logger (e.g. Holux M-1000C)
+* OBD II bluetooth module
 
-## Instructions
+## Is it legal?
 
-### Server
+I'm not sure, time will tell. I think so, as per ATO finding [2002/095](http://law.ato.gov.au/atolaw/view.htm?docid=AID/AID2002925/00001).
 
-You're on your own, just host the PHP file
+## Resources
 
-### Client
-
-OS: rasbpian 4.9.35-v7+
-
-#### Install the packages:
-
-`sudo apt install -y gpsd gpsd-clients`
+* [picard: A Raspberry Pi based OBD-II data logging system](https://souvik.me/blog/picard-a-raspberry-pi-based-obd-ii-data-logging-system)
