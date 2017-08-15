@@ -56,7 +56,11 @@ if (os.path.exists('/dev/rfcomm{}'.format(rfcomm_port))):
 else:
     mount_obd(obd_mac, obd_port, rfcomm_port)
 
-obd_connection = obd.OBD('/dev/rfcomm{}'.format(rfcomm_port))
+try:
+    obd_connection = obd.OBD('/dev/rfcomm{}'.format(rfcomm_port))
+except:
+    print "unable to connect to obd!"
+
 obd_command = obd.commands['DISTANCE_SINCE_DTC_CLEAR']
 
 
@@ -82,6 +86,7 @@ for new_data in gps_socket:
                 data['odo'] = str(obd_connection.query(obd_command).value)
             except:
                 data['odo'] = ''
+                data['odo-err'] = 'No Data from OBD-II'
 
             json_data = json.dumps(data)
             print 'JSON:', json_data
