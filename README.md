@@ -55,6 +55,15 @@ The Raspberry Pi 3 runs off a USB hub in my car. Eventually, I'd like to impleme
 
 The client is quite simple. A cron job runs every minute to grab the GPS lat/long (from `gpspipe`) which is then curl'd against an API URL.
 
+## Installation
+
+### Client
+
+1. clone this git repo onto the client: `$ git clone https://github.com/chrisbrownie/cartracker.git ~/cartracker`
+2. chmod the init.sh script to allow execution: `$ chmod +x ~/cartracker/client/init.sh`
+3. Run the init.sh script at boot. Add to `/etc/rc.local`: `/home/pi/cartracker/client/init.sh`
+4. create a cron job to run the python script: `/usr/bin/python /home/pi/cartracker/client/gps.py`
+
 ## Is it legal?
 
 I'm not sure, time will tell. I think so, as per ATO finding [2002/095](http://law.ato.gov.au/atolaw/view.htm?docid=AID/AID2002925/00001).
