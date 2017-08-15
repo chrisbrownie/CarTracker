@@ -5,5 +5,7 @@ exec_path='/home/pi/cartracker/'
 
 cd $exec_path
 
-git pull
+echo "Updating git repo ..."
+
+git pull || echo "Failed to update git repo!"
 
