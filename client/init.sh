@@ -1,5 +1,5 @@
 #!/bin/bash
-exec_path=/home/pi/cartracker/
+exec_path='/home/pi/cartracker/'
 
 # Ensure we've got the latest version of the code
 echo 'getting latest copy of repository'
