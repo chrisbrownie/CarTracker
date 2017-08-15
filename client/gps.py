@@ -78,7 +78,7 @@ for new_data in gps_socket:
             data['speed'] = str(data_stream.TPV['speed'])
             data['track'] = str(data_stream.TPV['track'])
             data['climb'] = str(data_stream.TPV['climb'])
-            data['odo'] = str(obd_connection.query(obd_command).value)
+            data['odo'] = str(obd_connection.query(obd_command).value) | | '-1'
 
             json_data = json.dumps(data)
             print 'JSON:', json_data
