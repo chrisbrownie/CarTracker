@@ -17,9 +17,12 @@ rfcomm_port = "0"
 odo_offset = 132435
 post_url = "https://zb8lln5c7b.execute-api.ap-southeast-2.amazonaws.com/prod/log"
 
-# Generate a guid for trip ID
-# trip ID is unique every time the car (pi) is started.
-trip_id = str(uuid.uuid4())
+tripid_path = "/home/pi/tripid"
+
+f = open(tripid_path, 'r')
+trip_id = f.readline()
+f.close()
+
 
 gps_socket = gps3.GPSDSocket()
 data_stream = gps3.DataStream()
