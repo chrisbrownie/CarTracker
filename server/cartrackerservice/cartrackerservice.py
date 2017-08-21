@@ -21,7 +21,7 @@ AWS_REGION = 'ap-southeast-2'
 # The name of the dynamodb table
 TABLE_NAME = 'carlog'
 # The name of the index by tripid sorting by time
-INDEX_NAME = 'tripid-time-index'
+INDEX_NAME = 'tripid-index'
 # The name of the S3 bucket
 S3_BUCKET = 'carlog'
 
@@ -58,13 +58,62 @@ def getDbRecords():
     table = dynamodb.Table(TABLE_NAME)
 
     results = table.scan(
-        FilterExpression=Attr('time').exists()
+        # This works, updating to allow 'exported'.notexists()
+        # FilterExpression=Attr('time').exists(),
+        ExpressionAttributeNames={
+            "#time": "time",
+            "#exported": "exported"
+        },
+        FilterExpression='attribute_exists(#time) AND attribute_not_exists(#exported)'
     )
 
     # the query method
 
     items = results['Items']
     return items
+
+
+def markTripExported(tripid):
+    print('Marking trip exported ' + tripid)
+
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(TABLE_NAME)
+
+    results = table.query(
+        TableName=TABLE_NAME,
+        IndexName=INDEX_NAME,
+        KeyConditionExpression='tripid = :tripid',
+        ExpressionAttributeValues={
+            ":tripid": tripid
+        }
+    )
+
+    items = results['Items']
+    for item in items:
+        table.update_item(
+            Key={
+                'time': item['time']
+            },
+            UpdateExpression="set exported = :exported",
+            ExpressionAttributeValues={
+                ':exported': 'true'
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+
+
+"""
+    response = table.update_item(
+        Key={
+            'tripid': tripid
+        },
+        UpdateExpression="set exported = :exported",
+        ExpressionAttributeValues={
+            ':exported': 'true'
+        },
+        ReturnValues="UPDATED_NEW"
+    )
+"""
 
 
 def generateKml(items):
@@ -138,26 +187,35 @@ def main(prog_args):
                 trips.append(item["tripid"])
 
     for trip in trips:
-        print(trip)
-
-        tripitems = []
+        # This will be set to false if anything fails.
+        # Used to determine if we should re-export or not
+        exportsuccess = True
 
         # build a new list with the items where the tripid = this trip
+        tripitems = []
 
-        for item in items:
-            if "tripid" in item:
-                if item["tripid"] == trip:
-                    tripitems.append(item)
+        try:
+            for item in items:
+                if "tripid" in item:
+                    if item["tripid"] == trip:
+                        tripitems.append(item)
 
-        # create the kml
-        tripid, kml = generateKml(tripitems)
+            # create the kml
+            tripid, kml = generateKml(tripitems)
 
-        # Write the KML to S3
-        writeFileToS3(
-            filename=tripid,
-            content=kml
-        )
-        print(tripid)
+            # Write the KML to S3
+            writeFileToS3(
+                filename=tripid,
+                content=kml
+            )
+            print("Processed" + tripid)
+        except:
+            exportsuccess = False
+            print('Could not export trip: ' + trip)
+
+        if exportsuccess == True:
+            # Succeeded to export
+            markTripExported(tripid)
 
 
 if __name__ == "__main__":
