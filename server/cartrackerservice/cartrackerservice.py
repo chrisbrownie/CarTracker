@@ -101,21 +101,6 @@ def markTripExported(tripid):
             ReturnValues="UPDATED_NEW"
         )
 
-
-"""
-    response = table.update_item(
-        Key={
-            'tripid': tripid
-        },
-        UpdateExpression="set exported = :exported",
-        ExpressionAttributeValues={
-            ':exported': 'true'
-        },
-        ReturnValues="UPDATED_NEW"
-    )
-"""
-
-
 def generateKml(items):
     kml = KML_HEADER
     try:
