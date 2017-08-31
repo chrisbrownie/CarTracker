@@ -47,10 +47,6 @@ KML_FOOTER = """
 
 KML_LINETEMPLATE = '        {lon}, {lat}, {alt} <!-- {time},{odo} -->'
 
-boto3.setup_default_session(
-    profile_name=AWS_PROFILE,
-    region_name=AWS_REGION)
-
 
 def getDbRecords():
 
@@ -100,6 +96,7 @@ def markTripExported(tripid):
             },
             ReturnValues="UPDATED_NEW"
         )
+
 
 def generateKml(items):
     kml = KML_HEADER
@@ -162,7 +159,7 @@ def writeFileToS3(filename, content):
     return 0
 
 
-def main(prog_args):
+def main():
 
     items = getDbRecords()
     trips = []
@@ -193,7 +190,7 @@ def main(prog_args):
                 filename=tripid,
                 content=kml
             )
-            print("Processed" + tripid)
+            print("Processed " + tripid)
         except:
             exportsuccess = False
             print('Could not export trip: ' + trip)
@@ -203,5 +200,19 @@ def main(prog_args):
             markTripExported(tripid)
 
 
+def lambda_handler(event, context):
+    # running in lambda, set up AWS without a profile name
+    boto3.setup_default_session(
+        region_name=AWS_REGION)
+
+    main()
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    # running interactively, use a profile
+    boto3.setup_default_session(
+        profile_name=AWS_PROFILE,
+        region_name=AWS_REGION)
+
+    sys.exit(main())
