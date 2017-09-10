@@ -83,7 +83,6 @@ function listObjects() {
                 $("#carlog-results").append(
                     $("<li>").html(
                         $("<a />").text(this.Key).attr('href', '#').attr('title', this.LastModified).attr('data-key', this.Key).click({ key: this.Key }, function (event) {
-                            console.log("Opening map: " + event.data.key);
                             addKmlToMap(event.data.key);
                         })
                     )
@@ -131,11 +130,6 @@ function getS3KmlContents(kmlPath) {
     var s3 = new AWS.S3();
 
     var params = {
-        Bucket: bucketName
-    }
-
-
-    var params = {
         Bucket: bucketName,
         Key: kmlPath
     };
@@ -146,21 +140,28 @@ function getS3KmlContents(kmlPath) {
             showAlert("Error retrieving object: " + err);
         } else {
             // Put the contents of the KML into kmlContents
-            var kmlContents = data.Body.toString('utf-8');
-            return kmlContents;
+            resultsString = new TextDecoder("utf-8").decode(data.Body);
+            return resultsString;
         }
     });
 }
 
 function addKmlToMap(kmlPath) {
-    var parser, xmlDoc;
-    var kmlContents = getS3KmlContents(kmlPath);
+    var parser, xmlDoc, kml;
 
-    parser = new DOMParser();
-    xmlDoc = parser.parseFromString(kmlContents, "text/xml");
+    kml = getS3KmlContents(kmlPath);
 
-    console.log(xmlDoc);
+    console.log("Opening map: " + kmlPath);
 
+    console.log("kmlContents:");
+    console.log(kml);
+    /*
+        parser = new DOMParser();
+        xmlDoc = parser.parseFromString(kml, "text/xml");
+    
+        console.log("xmlDoc:");
+        console.log(xmlDoc);
+    */
 }
 
 google.maps.event.addDomListener(window, 'load', initMap);
