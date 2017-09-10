@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CarTracker Viewer</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M"
+        crossorigin="anonymous">
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="/">CarTracker Viewer</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="showHideLeftColumn">Show/Hide Left Column</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="alert alert-warning alert-dismissable fade show carlog-alert" id="carlog-alert" role="alert">
+            <button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <p></p>
+        </div>
+        <!-- /alert -->
+        <div class="row">
+            <div class="col-3" id="leftHandColumn">
+                <div class="form-signin">
+                    <h2>IAM Credentials</h2>
+                    <input type="text" id="inputIAMAccessKey" class="form-control" placeholder="IAM Access Key" required>
+                    <input type="password" id="inputIAMSecretKey" class="form-control" placeholder="IAM Secret Key" required>
+                    <button id="listBuckets" class="btn btn-lg btn-primary btn-block" onclick="ListBuckets();" type="submit">Load Buckets</button>
+                    <div class="dropdown" id="bucket-dropdown">
+                        <button class="btn btn-info dropdown-toggle btn-block" type="button" id="bucketDropdownButton" data-toggle="dropdown" aria-haspopup="true"
+                            aria-expanded="false">
+                            Select Bucket...
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="bucketDropdownButton">
+                        </div>
+                    </div>
+                    <button id="listBucketObjects" class="btn btn-lg btn-primary btn-block" onclick="listObjects();" type="submit">Load Objects</button>
+                </div>
+            </div>
+            <div class="col">
+                <h2>Select a KML File:</h2>
+                <!-- list of files to be opened -->
+                <span id="carlog-results"></span>
+            </div>
+            <div class="col">
+                <!-- map -->
+                <div id="carlog-map-container" class="embed-responsive">
+                    <div id="carlog-map"></div>
+                </div>
+            </div>
+            <!-- /col -->
+        </div>
+        <!-- /row -->
+
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <span class="text-muted">
+                <a href="https://github.com/chrisbrownie/cartracker/" target="_blank">CarTracker</a>
+                &nbsp;by&nbsp;
+                <a href="https://github.com/chrisbrownie" target="_blank">Chris Brown</a>.
+            </span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        crossorigin="anonymous"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB-AKmIe9IP66myZwjGzqNf19xMOz9BKJ0"></script>
+
+    <script src="aws-s3-sdk-2.112.0.min.js"></script>
+    <script src="http://goessner.net/download/prj/jsonxml/xml2json.js"></script>
+    <script src="cartrackerviewer.js"></script>
+</body>
+
+</html>
