@@ -7,7 +7,9 @@ Processes trips and turns them into kml files
 from __future__ import print_function
 import sys
 import boto3
+import traceback
 import uuid
+import json
 from boto3.dynamodb.conditions import Key, Attr
 from botocore.exceptions import ClientError
 
@@ -146,15 +148,59 @@ def generateKml(items):
     return tripid, kml
 
 
-def writeFileToS3(filename, content):
+def generateJson(items):
+    try:
+        tripid = items[0]['tripid']
+    except:
+        tripid = "00000"
+
+    times = []
+
+    # Sort the times
+    for item in items:
+        times.append(item["time"])
+
+    times.sort()
+
+    starttime = 'not-set'
+    endtime = 'not-set'
+
+    itemsForExport = []
+
+    # for each time in order, return the item
+    for time in times:
+        item = next(x for x in items if x['time'] == time)
+        # if this is our first run, set starttime
+        if starttime == 'not-set':
+            starttime = item['time']
+        # Always set endtime so that it's got the last time entry
+        endtime = item['time']
+
+        coords = {
+            'lon': item['lon'],
+            'lat': item['lat'],
+            'alt': item['alt'],
+            'time': item['time'],
+            'tripid': tripid,
+            'odo': item['odo']
+        }
+        itemsForExport.append(coords)
+
+    jsonData = json.dumps(itemsForExport)
+
+    return tripid, jsonData
+
+
+def writeFileToS3(filename, extension, content):
     client = boto3.client('s3')
-    filepath = "/tmp/" + filename + '.kml'
+    filepath = "/tmp/" + filename + '.' + extension
     f = open(filepath, 'w')
     f.write(content)
     f.close()
 
     with open(filepath, 'rb') as g:
-        client.upload_fileobj(g, S3_BUCKET, 'kml/' + filename + '.kml')
+        client.upload_fileobj(g, S3_BUCKET, extension +
+                              '/' + filename + '.' + extension)
 
     return 0
 
@@ -163,6 +209,7 @@ def main():
 
     items = getDbRecords()
     trips = []
+    # Populate trips with a unique list of trips from the Db
     for item in items:
         if 'tripid' in item:
             if item["tripid"] not in trips:
@@ -188,14 +235,27 @@ def main():
             # Write the KML to S3
             writeFileToS3(
                 filename=tripid,
+                extension="kml",
                 content=kml
             )
+
+            # create the json file
+            tripid, jsonData = generateJson(tripitems)
+
+            # Write the JSON file to S3
+            writeFileToS3(
+                filename=tripid,
+                extension="json",
+                content=jsonData
+            )
+
             print("Processed " + tripid)
         except:
             exportsuccess = False
+            traceback.print_exc()
             print('Could not export trip: ' + trip)
 
-        if exportsuccess == True:
+        if exportsuccess:
             # Succeeded to export
             markTripExported(tripid)
 
