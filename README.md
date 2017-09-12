@@ -39,9 +39,9 @@ There is no "server" as such, everything runs on a bunch of AWS services:
 | AWS Service | Workload
 | --- | ---
 | DynamoDB | Database holding all the information
-| Lambda | Service for accepting and processing information before insertion into database
 | API Gateway | Provides HTTP endpoints for triggering Lambda functions
-| S3 | Holds/serves kml/gpx files for trips
+| Lambda | Service for processing information from database into output file types (KML+JSON)
+| S3 | Holds/serves kml/json files for trips
 
 ### Client
 
