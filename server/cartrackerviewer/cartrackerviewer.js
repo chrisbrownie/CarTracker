@@ -94,25 +94,7 @@ function listObjects() {
     });
 }
 
-function showAlert(message) {
-    $("#carlog-alert > p").html(message);
-    $("#carlog-alert").show();
-}
-
-// Google Maps
-function initMap() {
-
-    var mapOptions = {
-        center: new google.maps.LatLng(-37.8132, 144.963),
-        zoom: 11,
-        mapTypeId: google.maps.MapTypeId.HYBRID
-    }
-
-    map = new google.maps.Map(document.getElementById("carlog-map"), mapOptions);
-
-}
-
-function getS3KmlContents(kmlPath) {
+function drawTrip(kmlPath) {
 
     iamAccessKey = document.getElementById("inputIAMAccessKey").value;
     iamSecretKey = document.getElementById("inputIAMSecretKey").value;
@@ -134,39 +116,89 @@ function getS3KmlContents(kmlPath) {
         Key: kmlPath
     };
 
+    var fileContents = '';
+
     s3.getObject(params, function (err, data) {
         if (err) {
             console.log("Error retrieving object:", err);
             showAlert("Error retrieving object: " + err);
         } else {
-            // Put the contents of the KML into kmlContents
-            resultsString = new TextDecoder("utf-8").decode(data.Body);
-            return resultsString;
+            // Put the contents of the file into the kml-container div
+            var resultsString = new TextDecoder("utf-8").decode(data.Body);
+            var trip = JSON.parse(resultsString);
+
+            // Draw out the lines
+            linePoints = [];
+
+            for (i = 0; i < trip.length; i++) {
+                // console.log(trip[i]['lat'] + ', ' + trip[i]['lon'] + ' --> ' + trip[i]['lat'] + ', ' + trip[i]['lon']);
+                point = {
+                    lat: parseFloat(trip[i]['lat']),
+                    lng: parseFloat(trip[i]['lon'])
+                };
+                linePoints.push(point);
+            }
+
+            var tripPath = new google.maps.Polyline({
+                path: linePoints,
+                geodesic: true,
+                strokeColour: '#00FF00',
+                strokeOpacity: 1.0,
+                strokeWeight: 2
+            });
+
+            tripPath.setMap(map);
+
         }
     });
+
 }
 
 function addKmlToMap(kmlPath) {
     var parser, xmlDoc, kml;
 
-    kml = getS3KmlContents(kmlPath);
+    drawTrip(kmlPath);
 
-    console.log("Opening map: " + kmlPath);
 
-    console.log("kmlContents:");
-    console.log(kml);
-    /*
-        parser = new DOMParser();
-        xmlDoc = parser.parseFromString(kml, "text/xml");
-    
-        console.log("xmlDoc:");
-        console.log(xmlDoc);
-    */
+    //
+
 }
 
+function showAlert(message) {
+    $("#carlog-alert > p").html(message);
+    $("#carlog-alert").show();
+}
+
+// Google Maps
+function initMap() {
+
+    var mapOptions = {
+        center: new google.maps.LatLng(-37.8132, 144.963),
+        zoom: 11,
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    }
+
+    map = new google.maps.Map(document.getElementById("carlog-map"), mapOptions);
+
+}
+
+
 google.maps.event.addDomListener(window, 'load', initMap);
+// support dynamic resize
+google.maps.event.addDomListener(window, 'resize', function () {
+    var center = map.getCenter();
+    google.maps.event.trigger(map, "resize");
+    map.setCenter(center);
+});
+
+/* Variables */
+var map;
+
 
 $(document).ready(function () {
+
+    // Dynamodb Stuff
+    $("#listTablesButton").click(function () { listTables(); });
 
     // hide default stuff
     $("#bucket-dropdown").hide();

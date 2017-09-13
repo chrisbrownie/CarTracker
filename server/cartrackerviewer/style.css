@@ -57,7 +57,7 @@ body > .container {
     display: none;
 }
 
-#carlog-map {
-    height: 500px;
+.carlog-map {
     width: 500px;
+    height: 500px;
 }
