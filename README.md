@@ -1,5 +1,7 @@
 # CarTracker
 
+**Update (2017-10-10): I have terminated this project and will no longer be developing it. I have purchased a [GOFAR](https://www.gofar.co/) device and will be using this in place of maintaining the system I've developed here. The CarTracker system works, but is far more maintenance than I'm all that keen on for this project.**
+
 This system is growing out of my need to keep a car logbook for tax purposes. I need to record every car journey's distance and purpose.
 
 ## Components
